@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>📋 Tổ Trưởng – Nhật Ký Vi Phạm</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f1117; --bg2:#161820; --card:#1c1f2e; --card2:#22263a;
+  --border:#2d3154; --accent:#6c8ef5; --accent2:#a78bfa;
+  --green:#34d399; --red:#f87171; --yellow:#fbbf24;
+  --text:#e2e8f0; --text2:#94a3b8; --text3:#475569;
+  --tot:#34d399; --kha:#60a5fa; --dat:#fbbf24; --chuadat:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;min-height:100vh;padding-bottom:100px}
+
+.header{background:linear-gradient(135deg,#0d1b4b 0%,#0f1117 100%);padding:18px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.header-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.header h1{font-size:15px;font-weight:800;line-height:1.2}
+.header p{font-size:11px;color:var(--text2);margin-top:1px}
+.date-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.date-bar input,.date-bar select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:inherit;font-size:12px;font-weight:600;outline:none;flex:1;min-width:0}
+.date-bar input:focus,.date-bar select:focus{border-color:var(--accent)}
+
+/* SETUP */
+.setup-screen{padding:20px 16px}
+.setup-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+.setup-card h2{font-size:16px;font-weight:800;margin-bottom:6px}
+.setup-card p{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6}
+.field-label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;margin-top:12px}
+.field-label:first-of-type{margin-top:0}
+.setup-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s}
+.setup-input:focus{border-color:var(--accent)}
+.info-box{background:rgba(108,142,245,.1);border:1px solid rgba(108,142,245,.3);border-radius:10px;padding:12px;font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px}
+.info-box code{color:var(--accent);background:rgba(108,142,245,.15);padding:1px 5px;border-radius:4px;font-size:11px}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border-radius:12px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;width:100%}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-primary:hover{opacity:.88}
+.btn-secondary{background:var(--card2);border:1px solid var(--border);color:var(--text2)}
+.btn-green{background:linear-gradient(135deg,#059669,var(--green));color:#fff}
+.btn+.btn{margin-top:8px}
+
+/* MAIN */
+.main-screen{padding:14px 16px;display:none}
+.section-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.student-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+.student-btn{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:10px 8px;cursor:pointer;transition:all .15s;text-align:center;position:relative}
+.student-btn:active{transform:scale(.97)}
+.student-btn.selected{background:rgba(108,142,245,.15);border-color:var(--accent)}
+.student-btn.has-data{border-left:3px solid var(--green)}
+.student-btn .sname{font-size:13px;font-weight:700;line-height:1.3}
+.student-btn .sscore{font-size:11px;margin-top:3px;font-weight:600}
+.score-badge{position:absolute;top:5px;right:6px;font-size:10px;font-weight:800;padding:1px 5px;border-radius:6px}
+.score-tot{background:rgba(52,211,153,.2);color:var(--tot)}
+.score-kha{background:rgba(96,165,250,.2);color:var(--kha)}
+.score-dat{background:rgba(251,191,36,.2);color:var(--dat)}
+.score-chua{background:rgba(248,113,113,.2);color:var(--chuadat)}
+
+/* INPUT PANEL */
+.input-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;display:none}
+.input-panel.show{display:block}
+.panel-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.panel-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0}
+.panel-name{font-size:15px;font-weight:800}
+.panel-score{font-size:12px;color:var(--text2);margin-top:2px}
+.score-display{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.score-big{font-size:36px;font-weight:900;line-height:1}
+.score-info{flex:1}
+.score-label{font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.5px}
+.score-rank{font-size:16px;font-weight:800;margin-top:2px}
+.score-breakdown{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.6}
+.diem-tot-row{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.diem-tot-label{flex:1}
+.diem-tot-label b{font-size:14px;font-weight:700;color:var(--green);display:block}
+.diem-tot-label span{font-size:11px;color:var(--text2)}
+.counter{display:flex;align-items:center;gap:0}
+.counter-btn{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.counter-btn:active{transform:scale(.92)}
+.counter-val{width:44px;text-align:center;font-size:22px;font-weight:900;color:var(--green)}
+.vcat-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:10px 0 6px}
+.vchip{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;margin-bottom:5px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;background:var(--bg2)}
+.vchip:active{transform:scale(.98)}
+.vchip.checked{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.5)}
+.vchip-icon{font-size:16px;flex-shrink:0;width:24px;text-align:center}
+.vchip-text{flex:1}
+.vchip-label{font-size:13px;color:var(--text2);font-weight:600}
+.vchip.checked .vchip-label{color:var(--text)}
+.vchip-minus{font-size:11px;color:var(--red);font-weight:700}
+.chip-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .15s}
+.vchip.checked .chip-check{background:var(--red);border-color:var(--red);color:#fff}
+
+/* SAVE BAR */
+.save-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg);border-top:1px solid var(--border);display:none;z-index:40}
+.save-bar.show{display:block}
+
+/* WEEK TAB */
+.week-summary{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px}
+.week-summary h3{font-size:14px;font-weight:800;margin-bottom:12px}
+.summary-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin-bottom:4px;background:var(--bg2)}
+.summary-name{flex:1;font-size:13px;font-weight:600}
+.summary-detail{font-size:11px;color:var(--text2)}
+.summary-score{font-size:16px;font-weight:900;min-width:32px;text-align:center}
+.summary-rank{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
+
+/* TOAST */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--green);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red)}
+
+/* TABS */
+.nav-tabs{display:flex;gap:6px;margin-bottom:14px}
+.nav-tab{flex:1;padding:9px 6px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;text-align:center;transition:all .15s}
+.nav-tab.active{background:rgba(108,142,245,.15);border-color:var(--accent);color:var(--accent)}
+
+/* GIAO FILE MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;padding:16px;overflow-y:auto}
+.modal-overlay.show{display:block}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;max-width:440px;margin:0 auto;overflow:hidden}
+.modal-head{background:linear-gradient(135deg,#1a1060,#312e81);padding:18px 20px;text-align:center}
+.modal-head h2{font-size:16px;font-weight:900;color:#fff;margin:0 0 3px}
+.modal-head p{font-size:11px;color:rgba(255,255,255,.7);margin:0}
+.modal-body{padding:16px}
+.step-item{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.step-num{width:26px;height:26px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0}
+.step-txt b{display:block;font-size:13px;margin-bottom:2px}
+.step-txt span{font-size:12px;color:var(--text2);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<header class="header">
+  <div class="header-top">
+    <div class="logo">✏️</div>
+    <div>
+      <h1>Tổ Trưởng – Nhập Vi Phạm</h1>
+      <p id="headerSub">Nhập dữ liệu hàng ngày cho tổ mình</p>
+    </div>
+  </div>
+  <div class="date-bar">
+    <input type="date" id="dateInput">
+    <select id="weekInput"><option value="">-- Tuần --</option></select>
+    <select id="toInput">
+      <option value="">-- Tổ --</option>
+      <option value="1">Tổ 1</option>
+      <option value="2">Tổ 2</option>
+      <option value="3">Tổ 3</option>
+      <option value="4">Tổ 4</option>
+    </select>
+  </div>
+</header>
+
+<!-- SETUP -->
+<div class="setup-screen" id="setupScreen">
+  <div class="setup-card">
+    <h2>⚙️ Nhập dữ liệu từ Chủ Nhiệm</h2>
+    <p>Chủ nhiệm gửi file JSON cho tổ trưởng. Bấm nút bên dưới để nạp vào.</p>
+    <div class="info-box">
+      📌 Quy trình:<br>
+      1. Chủ nhiệm xuất file JSON từ ứng dụng của mình<br>
+      2. Gửi file cho từng tổ trưởng (Zalo/nhóm lớp)<br>
+      3. Tổ trưởng bấm <b>Nạp file JSON</b> bên dưới<br>
+      4. Dùng ngay — không cần thiết lập thêm!
+    </div>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display:none">
+    <button class="btn btn-primary" onclick="document.getElementById('importFile').click()">📂 Nạp file JSON từ Chủ Nhiệm</button>
+    <button class="btn btn-secondary" style="margin-top:8px" onclick="showHowTo()">❓ Hướng dẫn lần đầu</button>
+  </div>
+</div>
+
+<!-- HOWTO MODAL -->
+<div class="modal-overlay" id="howtoModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>📖 Hướng dẫn sử dụng lần đầu</h2>
+      <p>Dành cho Tổ Trưởng</p>
+    </div>
+    <div class="modal-body">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt"><b>Nhận file JSON từ Chủ Nhiệm</b><span>Chủ nhiệm vào app của mình → Quản lý → Xuất backup JSON → gửi cho tổ trưởng qua Zalo</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt"><b>Nạp file vào ứng dụng</b><span>Bấm "Nạp file JSON từ Chủ Nhiệm" → chọn file vừa nhận → dữ liệu lớp tải vào tự động</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt"><b>Nhập vi phạm mỗi ngày</b><span>Chọn học sinh → tích vi phạm → nhập điểm tốt → bấm Lưu. Làm vậy mỗi ngày trong tuần.</span></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt"><b>Gửi lại cho Chủ Nhiệm cuối tuần</b><span>Tab "Giao CN" → bấm "Xuất JSON gửi CN" → gửi file qua Zalo để CN tổng hợp toàn lớp</span></div></div>
+      <button class="btn btn-primary" onclick="document.getElementById('howtoModal').classList.remove('show')" style="margin-top:4px">Đã hiểu, đóng lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-screen" id="mainScreen">
+  <div class="nav-tabs">
+    <div class="nav-tab active" id="tabNhap" onclick="switchTab('nhap')">✏️ Nhập hôm nay</div>
+    <div class="nav-tab" id="tabTuan" onclick="switchTab('tuan')">📊 Tổng tuần</div>
+    <div class="nav-tab" id="tabGiao" onclick="switchTab('giao')">📤 Giao CN</div>
+  </div>
+
+  <!-- TAB NHAP -->
+  <div id="panelNhap">
+    <div class="section-title">Học sinh trong tổ</div>
+    <div class="student-grid" id="studentGrid"></div>
+    <div class="input-panel" id="inputPanel">
+      <div class="panel-header">
+        <div class="panel-avatar" id="panelAvatar"></div>
+        <div>
+          <div class="panel-name" id="panelName"></div>
+          <div class="panel-score" id="panelMeta"></div>
+        </div>
+      </div>
+      <div class="score-display">
+        <div class="score-big" id="scoreBig" style="color:var(--tot)">20</div>
+        <div class="score-info">
+          <div class="score-label">ĐIỂM RÈN LUYỆN TUẦN</div>
+          <div class="score-rank" id="scoreRank">Tốt</div>
+          <div class="score-breakdown" id="scoreBreakdown">20 + 0 - 0 = 20</div>
+        </div>
+      </div>
+      <div class="diem-tot-row" style="background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.3)">
+        <div class="diem-tot-label"><b style="color:var(--yellow)">🌅 Nghỉ buổi sáng</b><span>Hôm nay nghỉ sáng?</span></div>
+        <div class="counter">
+          <button class="counter-btn" onclick="changeAbsence('sang',-1)" style="border-color:rgba(251,191,36,.4)">−</button>
+          <div class="counter-val" id="absenceSangVal" style="color:var(--yellow)">0</div>
+          <button class="counter-btn" onclick="changeAbsence('sang',1)" style="border-color:rgba(251,191,36,.4)">+</button>
+        </div>
+      </div>
+      <div class="diem-tot-row" style="background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.3);margin-top:-8px">
+        <div class="diem-tot-label"><b style="color:var(--yellow)">🌆 Nghỉ buổi chiều</b><span>Hôm nay nghỉ chiều?</span></div>
+        <div class="counter">
+          <button class="counter-btn" onclick="changeAbsence('chieu',-1)" style="border-color:rgba(251,191,36,.4)">−</button>
+          <div class="counter-val" id="absenceChieuVal" style="color:var(--yellow)">0</div>
+          <button class="counter-btn" onclick="changeAbsence('chieu',1)" style="border-color:rgba(251,191,36,.4)">+</button>
+        </div>
+      </div>
+      <div id="totalAbsenceRow" style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--text2);display:none">
+        📊 Tổng buổi nghỉ cả học kỳ: <b id="totalAbsenceVal" style="color:var(--red);font-size:15px">0</b> buổi
+        <span id="absenceWarnBadge" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;margin-left:6px"></span>
+      </div>
+      <div class="diem-tot-row">
+        <div class="diem-tot-label"><b>⭐ Điểm tốt hôm nay</b><span>Số lần điểm ≥ 8 (+1 mỗi lần)</span></div>
+        <div class="counter">
+          <button class="counter-btn" onclick="changeGoodScore(-1)">−</button>
+          <div class="counter-val" id="goodScoreVal">0</div>
+          <button class="counter-btn" onclick="changeGoodScore(1)">+</button>
+        </div>
+      </div>
+      <div id="violationList"></div>
+    </div>
+  </div>
+
+  <!-- TAB TUAN -->
+  <div id="panelTuan" style="display:none">
+    <div class="week-summary">
+      <h3>📊 Tổng kết tổ – Tuần <span id="weekLabel"></span></h3>
+      <div id="weekRows"></div>
+    </div>
+  </div>
+
+  <!-- TAB GIAO -->
+  <div id="panelGiao" style="display:none">
+    <div class="setup-card">
+      <h2>📤 Giao dữ liệu cho Chủ Nhiệm</h2>
+      <p>Cuối mỗi tuần, xuất file JSON và gửi cho chủ nhiệm để tổng hợp điểm toàn lớp.</p>
+      <div class="info-box">⏰ Nên gửi vào <b>Thứ Sáu</b> sau giờ học để CN kịp tổng hợp & gửi email phụ huynh.</div>
+      <button class="btn btn-green" onclick="exportForCN()">📤 Xuất JSON gửi Chủ Nhiệm</button>
+    </div>
+    <div class="setup-card" style="margin-top:0">
+      <h2>📂 Nhận file mới từ Chủ Nhiệm</h2>
+      <p>Đầu tuần mới hoặc khi CN cập nhật danh sách lớp.</p>
+      <input type="file" id="reimportFile" accept=".json" onchange="importData(event)" style="display:none">
+      <button class="btn btn-secondary" onclick="document.getElementById('reimportFile').click()">📂 Nạp lại file JSON từ CN</button>
+    </div>
+  </div>
+</div>
+
+<div class="save-bar" id="saveBar">
+  <button class="btn btn-primary" onclick="saveStudentData()">💾 Lưu dữ liệu hôm nay</button>
+</div>
+
+<script>
+const VIOLATIONS = [
+  {cat:"🤝 Đạo đức & Ứng xử",items:[
+    {id:"v17",icon:"😤",label:"Vô lễ với giáo viên",minus:2},
+    {id:"v18",icon:"🥊",label:"Gây gổ / đánh nhau",minus:5},
+    {id:"v19",icon:"😈",label:"Nói tục / chửi thề",minus:2},
+    {id:"v20",icon:"🤫",label:"Gian lận kiểm tra",minus:2},
+    {id:"v21",icon:"🙄",label:"Thiếu tôn trọng bạn",minus:2},
+  ]},
+  {cat:"🏫 Nề nếp & Chuyên cần",items:[
+    {id:"v01",icon:"🔴",label:"Nghỉ học không phép",minus:1},
+    {id:"v02",icon:"⏰",label:"Đi học trễ / trễ tiết",minus:1},
+    {id:"v03",icon:"🚶",label:"Bỏ tiết / trốn học",minus:1},
+    {id:"v04",icon:"🚪",label:"Ra ngoài không xin phép",minus:1},
+    {id:"v05",icon:"😴",label:"Ngủ gật trong giờ",minus:1},
+  ]},
+  {cat:"👔 Đồng phục & Tác phong",items:[
+    {id:"v06",icon:"👕",label:"Không mặc đồng phục",minus:1},
+    {id:"v07",icon:"🎒",label:"Không đeo khăn / phù hiệu",minus:1},
+    {id:"v08",icon:"💇",label:"Tóc không đúng quy định",minus:1},
+    {id:"v09",icon:"💄",label:"Trang điểm / sơn móng",minus:1},
+  ]},
+  {cat:"📚 Học tập",items:[
+    {id:"v11",icon:"📓",label:"Không thuộc bài",minus:1},
+    {id:"v12",icon:"📝",label:"Không làm bài tập",minus:1},
+    {id:"v13",icon:"📖",label:"Không mang sách vở",minus:1},
+    {id:"v14",icon:"🗣️",label:"Nói chuyện trong giờ",minus:1},
+    {id:"v15",icon:"📱",label:"Dùng điện thoại trong giờ",minus:1},
+  ]},
+  {cat:"🏠 Vệ sinh & Sổ sách",items:[
+    {id:"v22",icon:"🗑️",label:"Xả rác không đúng nơi",minus:1},
+    {id:"v23",icon:"🧹",label:"Không vệ sinh lớp",minus:1},
+    {id:"v26",icon:"📜",label:"Không ký sổ liên lạc",minus:1},
+    {id:"v28",icon:"💰",label:"Chưa nộp khoản theo quy định",minus:1},
+  ]},
+];
+
+let config={teacher:'',className:'',hocky:'1',students:[]};
+let selectedId=null, todayData={}, weekData={};
+
+function init(){
+  document.getElementById('dateInput').value=new Date().toISOString().slice(0,10);
+  fillWeekOptions();
+  const saved=localStorage.getItem('to_truong_tt');
+  if(saved){
+    const d=JSON.parse(saved);
+    config=d.config||config;
+    weekData={};
+    Object.entries(d.weekData||{}).forEach(([k,v])=>weekData[k]=v);
+    // Lọc theo tổ đã chọn (nếu có)
+    const myTo=localStorage.getItem('my_to')||'';
+    if(myTo) document.getElementById('toInput').value=myTo;
+    loadTodayData();
+    showMain();
+  }
+  document.getElementById('dateInput').addEventListener('change',loadTodayData);
+  document.getElementById('weekInput').addEventListener('change',()=>{loadTodayData();renderWeekSummary()});
+  document.getElementById('toInput').addEventListener('change',()=>{
+    localStorage.setItem('my_to',document.getElementById('toInput').value);
+    renderStudentGrid();
+  });
+}
+
+function fillWeekOptions(){
+  const sel=document.getElementById('weekInput');
+  sel.innerHTML='<option value="">-- Tuần --</option>';
+  for(let w=1;w<=52;w++){const o=document.createElement('option');o.value=w;o.textContent='Tuần '+w;sel.appendChild(o);}
+  const now=new Date();
+  now.setUTCDate(now.getUTCDate()+4-(now.getUTCDay()||7));
+  const w=Math.ceil((((now-new Date(Date.UTC(now.getUTCFullYear(),0,1)))/86400000)+1)/7);
+  sel.value=w;
+}
+
+function importData(event){
+  const file=event.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.config||!data.weekData) throw new Error('Sai định dạng');
+      if(!confirm(`Nạp dữ liệu lớp "${data.config.className}" từ Chủ Nhiệm?\nDữ liệu hiện tại sẽ được cập nhật.`))return;
+      localStorage.setItem('to_truong_tt',JSON.stringify(data));
+      location.reload();
+    }catch(err){showToast('❌ File lỗi hoặc không đúng định dạng!',true);}
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+function exportForCN(){
+  const data=localStorage.getItem('to_truong_tt');
+  if(!data){showToast('Không có dữ liệu!',true);return;}
+  const myTo=document.getElementById('toInput').value||'tat-ca';
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');
+  const now=new Date();
+  const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  a.href=URL.createObjectURL(blob);
+  a.download=`to${myTo}-tuan${document.getElementById('weekInput').value||'?'}-${stamp}.json`;
+  a.click();
+  showToast('✅ Đã xuất file! Gửi cho Chủ Nhiệm qua Zalo.');
+}
+
+function showMain(){
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('mainScreen').style.display='block';
+  document.getElementById('headerSub').textContent=`${config.className} – ${config.teacher}`;
+  loadTodayData(); renderStudentGrid(); renderWeekSummary();
+}
+
+function loadTodayData(){
+  const date=document.getElementById('dateInput').value;
+  const week=document.getElementById('weekInput').value;
+  todayData={};
+  config.students.forEach(s=>{
+    const wd=weekData[s.id]; if(!wd)return;
+    const ex=wd.days.find(d=>d.date===date&&d.week===week);
+    todayData[s.id]=ex?{goodScore:ex.goodScore,violations:new Set(ex.violations),absenceSang:ex.absenceSang||0,absenceChieu:ex.absenceChieu||0}:{goodScore:0,violations:new Set(),absenceSang:0,absenceChieu:0};
+  });
+  renderStudentGrid();
+}
+
+function renderStudentGrid(){
+  const toFilter=document.getElementById('toInput').value;
+  const grid=document.getElementById('studentGrid');
+  grid.innerHTML='';
+  const filtered=toFilter?config.students.filter(s=>s.to===toFilter):config.students;
+  filtered.forEach(s=>{
+    const wd=calcWeekScore(s.id);
+    const td=todayData[s.id]||{goodScore:0,violations:new Set()};
+    const hasData=td.goodScore>0||td.violations.size>0;
+    const rc=getRankClass(wd.rank);
+    const div=document.createElement('div');
+    div.className='student-btn'+(s.id===selectedId?' selected':'')+(hasData?' has-data':'');
+    div.innerHTML=`<div class="score-badge ${rc}">${wd.score}đ</div><div class="sname">${s.name}</div><div class="sscore" style="color:var(--${rc.replace('score-','')==='chua'?'chuadat':rc.replace('score-','')})">${wd.rank}</div>`;
+    div.onclick=()=>selectStudent(s.id);
+    grid.appendChild(div);
+  });
+}
+
+function getRankClass(rank){
+  if(rank==='Tốt')return'score-tot';if(rank==='Khá')return'score-kha';if(rank==='Đạt')return'score-dat';return'score-chua';
+}
+
+function selectStudent(id){
+  selectedId=id;
+  const s=config.students.find(x=>x.id===id);
+  const td=todayData[id]||{goodScore:0,violations:new Set()};
+  document.getElementById('inputPanel').classList.add('show');
+  document.getElementById('saveBar').classList.add('show');
+  const w=s.name.split(' ');
+  document.getElementById('panelAvatar').textContent=w.length>=2?w[w.length-2][0]+w[w.length-1][0]:s.name.slice(0,2);
+  document.getElementById('panelName').textContent=s.name;
+  document.getElementById('panelMeta').textContent=`Tổ ${s.to}`;
+  document.getElementById('goodScoreVal').textContent=td.goodScore;
+  document.getElementById('absenceSangVal').textContent=td.absenceSang||0;
+  document.getElementById('absenceChieuVal').textContent=td.absenceChieu||0;
+  const total=getTotalAbsence(id);
+  const absRow=document.getElementById('totalAbsenceRow');
+  absRow.style.display='block';
+  document.getElementById('totalAbsenceVal').textContent=total;
+  const badge=document.getElementById('absenceWarnBadge');
+  if(total>=40){badge.style.display='inline';badge.textContent='⚠️ Mốc 40!';}
+  else if(total>=30){badge.style.display='inline';badge.textContent='⚠️ Mốc 30!';}
+  else if(total>=15){badge.style.display='inline';badge.textContent='⚠️ Mốc 15!';}
+  else badge.style.display='none';
+  renderViolations(); updateScoreDisplay(); renderStudentGrid();
+  document.getElementById('inputPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderViolations(){
+  const td=todayData[selectedId]||{goodScore:0,violations:new Set()};
+  let html='';
+  VIOLATIONS.forEach(cat=>{
+    html+=`<div class="vcat-title">${cat.cat}</div>`;
+    cat.items.forEach(v=>{
+      const c=td.violations.has(v.id);
+      html+=`<div class="vchip${c?' checked':''}" onclick="toggleV('${v.id}')"><span class="vchip-icon">${v.icon}</span><div class="vchip-text"><div class="vchip-label">${v.label}</div><div class="vchip-minus">-${v.minus} điểm</div></div><span class="chip-check">${c?'✓':''}</span></div>`;
+    });
+  });
+  document.getElementById('violationList').innerHTML=html;
+}
+
+function toggleV(vid){
+  if(!selectedId)return;
+  if(!todayData[selectedId])todayData[selectedId]={goodScore:0,violations:new Set()};
+  const v=todayData[selectedId].violations;
+  v.has(vid)?v.delete(vid):v.add(vid);
+  renderViolations(); updateScoreDisplay();
+}
+
+function changeAbsence(buoi,delta){
+  if(!selectedId)return;
+  if(!todayData[selectedId])todayData[selectedId]={goodScore:0,violations:new Set(),absenceSang:0,absenceChieu:0};
+  const key=buoi==='sang'?'absenceSang':'absenceChieu';
+  todayData[selectedId][key]=Math.max(0,Math.min(1,(todayData[selectedId][key]||0)+delta));
+  document.getElementById('absenceSangVal').textContent=todayData[selectedId].absenceSang||0;
+  document.getElementById('absenceChieuVal').textContent=todayData[selectedId].absenceChieu||0;
+}
+
+function changeGoodScore(delta){
+  if(!selectedId)return;
+  if(!todayData[selectedId])todayData[selectedId]={goodScore:0,violations:new Set()};
+  todayData[selectedId].goodScore=Math.max(0,(todayData[selectedId].goodScore||0)+delta);
+  document.getElementById('goodScoreVal').textContent=todayData[selectedId].goodScore;
+  updateScoreDisplay();
+}
+
+function getTotalAbsence(id){
+  const wd=weekData[id]; if(!wd)return 0;
+  return(wd.days||[]).reduce((s,d)=>s+(d.absenceSang||0)+(d.absenceChieu||0),0);
+}
+
+function calcWeekScore(id){
+  const week=document.getElementById('weekInput').value;
+  const wd=weekData[id];
+  if(!wd)return{score:20,rank:'Tốt',plus:0,minus:0};
+  let totalGood=0,totalMinus=0;
+  wd.days.filter(d=>d.week===week).forEach(d=>{
+    totalGood+=d.goodScore||0;
+    (d.violations||[]).forEach(vid=>{VIOLATIONS.forEach(cat=>{const v=cat.items.find(x=>x.id===vid);if(v)totalMinus+=v.minus;});});
+  });
+  const td=todayData[id];
+  if(td){
+    const todayDate=document.getElementById('dateInput').value;
+    const alreadySaved=wd.days.find(d=>d.date===todayDate&&d.week===week);
+    if(!alreadySaved){
+      totalGood+=td.goodScore||0;
+      td.violations.forEach(vid=>{VIOLATIONS.forEach(cat=>{const v=cat.items.find(x=>x.id===vid);if(v)totalMinus+=v.minus;});});
+    }
+  }
+  const score=Math.max(0,20+totalGood-totalMinus);
+  return{score,rank:getrank(score),plus:totalGood,minus:totalMinus};
+}
+
+function getrank(score){if(score>=17)return'Tốt';if(score>=14)return'Khá';if(score>=11)return'Đạt';return'Chưa đạt';}
+
+function updateScoreDisplay(){
+  const ws=calcWeekScore(selectedId);
+  const color=ws.rank==='Tốt'?'var(--tot)':ws.rank==='Khá'?'var(--kha)':ws.rank==='Đạt'?'var(--dat)':'var(--chuadat)';
+  document.getElementById('scoreBig').textContent=ws.score;
+  document.getElementById('scoreBig').style.color=color;
+  document.getElementById('scoreRank').textContent=ws.rank;
+  document.getElementById('scoreRank').style.color=color;
+  document.getElementById('scoreBreakdown').textContent=`20 + ${ws.plus} cộng - ${ws.minus} trừ = ${ws.score}`;
+}
+
+function saveStudentData(){
+  if(!selectedId)return;
+  const date=document.getElementById('dateInput').value;
+  const week=document.getElementById('weekInput').value;
+  if(!week){showToast('Chọn tuần trước!',true);return;}
+  const td=todayData[selectedId];
+  const wd=weekData[selectedId];
+  wd.days=wd.days.filter(d=>!(d.date===date&&d.week===week));
+  wd.days.push({date,week,goodScore:td.goodScore,violations:[...td.violations],absenceSang:td.absenceSang||0,absenceChieu:td.absenceChieu||0});
+  const ws=calcWeekScore(selectedId);
+  wd.weekScore=ws.score; wd.rank=ws.rank;
+  saveAll();
+  renderStudentGrid(); renderWeekSummary();
+  showToast(`✓ Đã lưu: ${config.students.find(s=>s.id===selectedId)?.name}`);
+}
+
+function saveAll(){
+  localStorage.setItem('to_truong_tt',JSON.stringify({config,weekData}));
+}
+
+function renderWeekSummary(){
+  const week=document.getElementById('weekInput').value;
+  document.getElementById('weekLabel').textContent=week?`Tuần ${week}`:'';
+  const toFilter=document.getElementById('toInput').value;
+  const students=toFilter?config.students.filter(s=>s.to===toFilter):config.students;
+  document.getElementById('weekRows').innerHTML=students.map(s=>{
+    const ws=calcWeekScore(s.id);
+    const color=ws.rank==='Tốt'?'var(--tot)':ws.rank==='Khá'?'var(--kha)':ws.rank==='Đạt'?'var(--dat)':'var(--chuadat)';
+    const rc=getRankClass(ws.rank);
+    return`<div class="summary-row"><div><div class="summary-name">${s.name}</div><div class="summary-detail">+${ws.plus} cộng · -${ws.minus} trừ</div></div><div style="text-align:right"><div class="summary-score" style="color:${color}">${ws.score}</div><div class="summary-rank ${rc}">${ws.rank}</div></div></div>`;
+  }).join('');
+}
+
+function switchTab(tab){
+  ['Nhap','Tuan','Giao'].forEach(t=>{
+    const l=t.toLowerCase();
+    document.getElementById('panel'+t).style.display=l===tab?'block':'none';
+    document.getElementById('tab'+t).classList.toggle('active',l===tab);
+  });
+  if(tab==='tuan')renderWeekSummary();
+  if(tab!=='nhap')document.getElementById('saveBar').classList.remove('show');
+  else if(selectedId)document.getElementById('saveBar').classList.add('show');
+}
+
+function showHowTo(){document.getElementById('howtoModal').classList.add('show');}
+
+function showToast(msg,isErr=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(isErr?' err':'');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+init();
+</script>
+</body>
+</html>
